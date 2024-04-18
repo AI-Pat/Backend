@@ -154,3 +154,11 @@ EMAIL_HOST_PASSWORD = 'jqcn vymv llsk kbqh'
 JWT_SECRET = 'aidatapat'
 JWT_EXPIRED_DAY = 7
 JWT_ALGORITHM = 'HS256'
+
+
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "https://www.cgvgoat.xyz"
+    ]
