@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-bte_-%3u@k^7qv)cbaw_yfpp(tjo+-b29tpa6h&_)8ck)zo&vk
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['210.124.196.57', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -42,8 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'user',
-    'lecture',
-    'scenario',
+    'patent',
     'drf_yasg',
     'corsheaders',
 ]
@@ -67,6 +66,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'user.middleware.BearerTokenMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'Ai_Pat.urls'
@@ -141,3 +142,14 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'kbo002004@gmail.com'
+EMAIL_HOST_PASSWORD = 'jqcn vymv llsk kbqh'
+
+JWT_SECRET = 'aidatapat'
+JWT_EXPIRED_DAY = 7
+JWT_ALGORITHM = 'HS256'

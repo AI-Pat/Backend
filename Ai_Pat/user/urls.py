@@ -10,5 +10,5 @@ urlpatterns = [
     path('update_userinfo_email', update_userinfo_email),
     path('confirm_new_email/<str:token>/', confirm_new_email, name='confirm_new_email'),
     path('user_delete', user_delete),
-    path('confirm_email/<str:token>/', confirm_email, name='confirm_email'),
+    path('auth/emailAuth/<str:token>/', confirm_email, name='confirm_email'),
 ]

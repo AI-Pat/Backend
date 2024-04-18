@@ -1,3 +1,5 @@
+# Create your views here.
+
 import json
 import re
 import uuid
@@ -13,6 +15,7 @@ from rest_framework.response import Response
 from .decorator import authenticated
 from .models import User
 from .token import token_encode
+from drf_yasg import openapi
 
 load_dotenv()
 
@@ -31,7 +34,15 @@ class JoinRequest:
         self.email = body['email']
         self.name = body['name']
 
+login_request_body = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    properties={
+        'username': openapi.Schema(type=openapi.TYPE_STRING, description='사용자 이름'),
+        'password': openapi.Schema(type=openapi.TYPE_STRING, description='비밀번호'),
+    }
+)
 
+@swagger_auto_schema(method='post', request_body=login_request_body, responses={200: '로그인에 성공했습니다.', 401: '로그인에 실패했습니다.'})
 @api_view(['POST'])
 def login(request):
     dto = LoginRequest(json.loads(request.body))
@@ -83,7 +94,7 @@ def join(request):
     email_token = uuid.uuid4()
     email_message = f'''
     아래 링크를 클릭하여 이메일을 인증해주세요.
-    https://www.cgvgoat.xyz/auth/emailAuth/{email_token}
+    210.124.196.57:8000/api/auth/emailAuth/{email_token}
     '''
     send_mail(
         '이메일 인증 메시지',
@@ -160,7 +171,16 @@ def user_delete(request):
     User.objects.get(username=request.user.username).delete()
     return Response({"회원탈퇴 완료"}, status=status.HTTP_204_NO_CONTENT)
 
+user_response = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    properties={
+        'name': openapi.Schema(type=openapi.TYPE_STRING, description='User name'),
+        'email': openapi.Schema(type=openapi.TYPE_STRING, description='User email'),
+        'username': openapi.Schema(type=openapi.TYPE_STRING, description='User username'),
+    }
+)
 
+@swagger_auto_schema(methods=['post'], responses={200: user_response})
 @api_view(["POST"])
 @authenticated
 def get_user_info(request):
