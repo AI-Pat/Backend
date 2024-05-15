@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-bte_-%3u@k^7qv)cbaw_yfpp(tjo+-b29tpa6h&_)8ck)zo&vk
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['port-0-backend-754g42alv4rr5jg.sel5.cloudtype.app']
+ALLOWED_HOSTS = ['port-0-backend-754g42alv4rr5jg.sel5.cloudtype.app', '127.0.0.1','210.124.196.57']
 
 
 
