@@ -1,9 +1,11 @@
+from django.views.decorators.csrf import csrf_exempt
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import pandas as pd
-
+from django.http import JsonResponse
+import os
 
 
 @swagger_auto_schema(
@@ -303,3 +305,53 @@ def ytd_trend(request):
     }
 
     return Response(response_data)
+@csrf_exempt
+def upload_preprocess_statistics(request):
+    if request.method == 'POST' and request.FILES['myfile']:
+        myfile = request.FILES['myfile']
+        # 파일 저장 경로 설정
+        file_path = os.path.join('C:/Users/kbo00/Downloads', myfile.name)
+
+        # 파일 저장
+        with open(file_path, 'wb+') as destination:
+            for chunk in myfile.chunks():
+                destination.write(chunk)
+
+        # 엑셀 파일 로드
+        df = pd.read_excel(file_path, engine='openpyxl')
+
+        # 출원인이 없는 값 제거 (행 삭제)
+        df.dropna(subset=['출원인'], inplace=True)
+
+        # 출원인이 여러명인 경우 첫 번째 국가로 변경
+        df['출원인국가'] = df['출원인국가'].apply(lambda x: x.split(',')[0] if ',' in x else x)
+
+        # 출원인 대표 필드 값이 없으면 출원인으로 채우기
+        df['출원인대표명'] = df.apply(lambda x: x['출원인'] if pd.isna(x['출원인대표명']) else x['출원인대표명'], axis=1)
+
+        # 출원일 형식 변경 (년도만 남기기)
+        df['출원일'] = df['출원일'].apply(lambda x: str(x).split('/')[0] if '/' in str(x) else str(x).split('.')[0])
+
+        # 전처리된 데이터프레임 저장
+        processed_file_path = 'C:/preprocessed_and_statistics.xlsx'
+        with pd.ExcelWriter(processed_file_path) as writer:
+            df.to_excel(writer, sheet_name='Preprocessed Data', index=False)
+
+            # 출원일(년도)와 출원인국가를 기준으로 통계 생성
+            statistics = df.groupby(['출원일', '출원인국가']).size().unstack(fill_value=0)
+
+            # 각 국가별 합계 계산 및 정렬
+            statistics['sum'] = statistics.sum(axis=1)
+            statistics.sort_values(by='sum', ascending=False, inplace=True)
+            statistics.drop(columns=['sum'], inplace=True)
+            statistics.loc['sum'] = statistics.sum()
+
+            # 합계가 큰 순서로 국가 열 정렬
+            statistics = statistics[statistics.loc['sum'].sort_values(ascending=False).index]
+
+            # 통계 표 저장
+            statistics.to_excel(writer, sheet_name='Statistics')
+
+        return JsonResponse({'message': '전처리 및 통계가 완료된 엑셀 파일이 저장되었습니다.'})
+    else:
+        return JsonResponse({'message': '파일을 업로드해주세요.'})
